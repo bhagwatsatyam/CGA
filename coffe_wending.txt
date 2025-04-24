@@ -1,0 +1,89 @@
+include <windows.h> // Required for Dev-C++ (Windows) #include <GL/glut.h>
+#include <iostream> using namespace std;
+
+int x1, y1, x2, y2, pattern = 1;
+
+
+// Function to draw the solid X and Y axes with tick marks void drawAxesWithTicks() {
+glColor3f(0, 0, 1); // Blue color for axes glLineWidth(2.0);
+
+// Draw main X and Y axes glBegin(GL_LINES);
+glVertex2i(-100, 0); glVertex2i(100, 0); // X-axis
+glVertex2i(0, -100); glVertex2i(0, 100); // Y-axis glEnd();
+
+glLineWidth(1.0); // Reset line width
+
+
+// Draw tick marks at every 10 units glBegin(GL_LINES);
+for (int i = -100; i <= 100; i += 10) { if (i != 0) {
+glVertex2i(i, -2); glVertex2i(i, 2); // Vertical ticks on X-axis glVertex2i(-2, i); glVertex2i(2, i); // Horizontal ticks on Y-axis
+ 
+}
+}
+glEnd();
+}
+
+
+// Function to set the line pattern correctly void setLinePattern() {
+glDisable(GL_LINE_STIPPLE); // Reset stippling first glLineWidth(1.0); // Reset line width to default
+
+if (pattern == 2) { // Dotted Line glEnable(GL_LINE_STIPPLE);
+glLineStipple(1, 0x0101); // Small dots
+}
+else if (pattern == 3) { // Dashed Line glEnable(GL_LINE_STIPPLE);
+glLineStipple(1, 0x00FF); // Dashed pattern
+}
+else if (pattern == 4) { // Solid Line
+glLineWidth(3.0); // Increase thickness for visibility
+}
+}
+
+
+// Function to draw a line using the DDA Algorithm void drawDDA(int x1, int y1, int x2, int y2) {
+glColor3f(1, 0, 0); // Red color for the line
+setLinePattern(); // Apply selected line pattern
+ 
+glBegin(GL_LINES); glVertex2i(x1, y1); glVertex2i(x2, y2); glEnd();
+
+glFlush();
+}
+
+
+// Function to redraw ONLY the line (without changing the axes) void updateLine() {
+glClear(GL_COLOR_BUFFER_BIT);
+drawAxesWithTicks(); // Keep axes fixed with tick marks drawDDA(x1, y1, x2, y2); // Redraw only the line
+}
+
+
+// Menu function to select the line type void menu(int option) {
+pattern = option;
+updateLine(); // Only update the line without changing axes
+}
+
+
+// Initialization function void init() {
+glClearColor(1, 1, 1, 1);
+gluOrtho2D(-100, 100, -100, 100);
+}
+
+
+// Main function
+ 
+int main(int argc, char** argv) { cout << "Enter x1, y1, x2, y2: "; cin >> x1 >> y1 >> x2 >> y2;
+
+glutInit(Cargc, argv);
+glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); glutInitWindowSize(500, 500);
+glutCreateWindow("Menu-Driven Line Drawing with Ticks");
+
+
+init();
+glutDisplayFunc(updateLine); // Initial display function to show axes + line
+
+
+// Create menu for line patterns glutCreateMenu(menu); glutAddMenuEntry("Simple Line", 1);
+glutAddMenuEntry("Dotted Line", 2);
+glutAddMenuEntry("Dashed Line", 3);
+glutAddMenuEntry("Solid Line", 4); glutAttachMenu(GLUT_RIGHT_BUTTON);
+
+glutMainLoop(); return 0;
+}
